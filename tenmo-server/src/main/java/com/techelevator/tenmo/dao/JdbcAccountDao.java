@@ -21,10 +21,10 @@ public class JdbcAccountDao implements AccountDao {
 
 
      @Override
-    public Account getAccount(int accountId){
-        String sql = "Select * from account where account_id = ? ";
+    public Account getAccount(int userId){
+        String sql = "Select * from account where user_id = ? ";
         Account account = new Account();
-        SqlRowSet set = jdbcTemplate.queryForRowSet(sql,accountId) ;
+        SqlRowSet set = jdbcTemplate.queryForRowSet(sql,userId) ;
 
            if (set.next()) {
                   account = mapRowToAccount(set) ;
@@ -38,9 +38,9 @@ public class JdbcAccountDao implements AccountDao {
         return balance;
     }
     @Override
-    public boolean updateAccount(int i, Account account) {
-        String sql = "UPDATE account SET balance = ? WHERE account_id = ?";
-                
+    public boolean updateAccount(int userId, Account account) {
+        String sql = "UPDATE account SET balance = ? WHERE user_id = ?";
+          return jdbcTemplate.update(sql, account.getBalance(), userId) == 1;
     }
 
     private Account mapRowToAccount(SqlRowSet rs) {
