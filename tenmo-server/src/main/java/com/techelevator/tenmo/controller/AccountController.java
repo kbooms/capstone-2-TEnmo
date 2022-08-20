@@ -28,4 +28,8 @@ private Account getAccount(@PathVariable int userId){
     return accountDao.getAccount(userId);
 }
 
+    @RequestMapping(value = "/balance/{accountId}", method = RequestMethod.GET)
+    private BigDecimal getBalance(@PathVariable int accountId){
+        return accountDao.getAccount(accountId).getBalance();
+    }
 }

@@ -32,6 +32,12 @@ public class JdbcAccountDao implements AccountDao {
         return account ;
     }
 
+    public BigDecimal getBalance(int accountId){
+        String sql = "Select balance from account where account_id = ?";
+        BigDecimal balance = jdbcTemplate.queryForObject(sql,BigDecimal.class, accountId);
+        return balance;
+    }
+
     private Account mapRowToAccount(SqlRowSet rs) {
         Account account = new Account();
         account.setAccount_id(rs.getInt("account_id"));
