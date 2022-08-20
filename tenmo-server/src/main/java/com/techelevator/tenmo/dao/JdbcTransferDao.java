@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.Transfer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -8,19 +9,17 @@ import java.math.BigDecimal;
 public class JdbcTransferDao implements TransferDao{
     private JdbcTemplate jdbcTemplate;
 
-
-
     public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
 
     @Override
-    public void sendMoney(int transferId, int fromAccountId, int toAcccountId, BigDecimal transferAmount,
-                          String typeTransfer, String transferStatus ) {
-        if( fromAccountId != toAcccountId && transferAmount.doubleValue() > 0 && transferAmount.doubleValue() <=    ){
-
-        }
+    public boolean sendMoney(Transfer transfer) {
+        String sql = "INSERT into TRANSFER(transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
+                "values(?, ?, ?, ?)";
+        return jdbcTemplate.update(sql, transfer.getTransferId(), transfer.getTypeTransfer(), transfer.getFromAccount(),
+                            transfer.getToAccount(), transfer.getAmountForTransfer() ) == 1;
 
     }
 

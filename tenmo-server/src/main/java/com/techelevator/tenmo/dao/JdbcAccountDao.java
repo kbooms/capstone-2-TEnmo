@@ -37,6 +37,11 @@ public class JdbcAccountDao implements AccountDao {
         BigDecimal balance = jdbcTemplate.queryForObject(sql,BigDecimal.class, accountId);
         return balance;
     }
+    @Override
+    public boolean updateAccount(int i, Account account) {
+        String sql = "UPDATE account SET balance = ? WHERE account_id = ?";
+                
+    }
 
     private Account mapRowToAccount(SqlRowSet rs) {
         Account account = new Account();
