@@ -4,10 +4,8 @@ import java.math.BigDecimal;
 
 public class Account {
     private int account_id;
-    private int userId;
+    private User user;
     private BigDecimal balance;
-
-
 
     public int getAccount_id() {
         return account_id;
@@ -17,12 +15,12 @@ public class Account {
         this.account_id = account_id;
     }
 
-    public int getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public BigDecimal getBalance() {

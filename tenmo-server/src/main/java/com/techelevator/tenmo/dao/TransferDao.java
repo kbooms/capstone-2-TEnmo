@@ -7,7 +7,9 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface TransferDao {
-    public boolean sendMoney(Transfer transfer);
-    public List<Transfer> transfersFrom(Account account);
+    public boolean Create(Transfer transfer);
+    public List<Transfer> getTransfersList(Account account);
+    public boolean updateStatus(Transfer transfer);
+
 
 }

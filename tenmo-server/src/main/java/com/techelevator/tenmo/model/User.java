@@ -1,6 +1,9 @@
 package com.techelevator.tenmo.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -61,12 +64,15 @@ public class User {
       this.authorities = authorities;
    }
 
+   @JsonProperty("name")
    public void setAuthorities(String authorities) {
       String[] roles = authorities.split(",");
       for(String role : roles) {
          this.authorities.add(new Authority("ROLE_" + role));
       }
    }
+
+
 
    @Override
    public boolean equals(Object o) {

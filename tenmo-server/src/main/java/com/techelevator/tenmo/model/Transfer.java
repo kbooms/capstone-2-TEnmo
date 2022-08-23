@@ -1,22 +1,18 @@
 package com.techelevator.tenmo.model;
 
-import org.springframework.data.relational.core.mapping.Column;
-
 import java.math.BigDecimal;
 
 public class Transfer {
 
     private int transferId;
 
-    private String fromAccount;
+    private Account fromAccount;
 
-    private String toAccount;
+    private Account toAccount;
 
-    private String typeTransfer;
-    private String transferStatus;
+    private TypeTransfer typeTransfer;
+    private StatusTransfer transferStatus;
     private BigDecimal amountForTransfer;
-
-
 
     public int getTransferId() {
         return transferId;
@@ -26,35 +22,35 @@ public class Transfer {
         this.transferId = transferId;
     }
 
-    public String getFromAccount() {
+    public Account getFromAccount() {
         return fromAccount;
     }
 
-    public void setFromAccount(String fromAccount) {
+    public void setFromAccount(Account fromAccount) {
         this.fromAccount = fromAccount;
     }
 
-    public String getToAccount() {
+    public Account getToAccount() {
         return toAccount;
     }
 
-    public void setToAccount(String toAccount) {
+    public void setToAccount(Account toAccount) {
         this.toAccount = toAccount;
     }
 
-    public String getTypeTransfer() {
+    public TypeTransfer getTypeTransfer() {
         return typeTransfer;
     }
 
-    public void setTypeTransfer(String typeTransfer) {
+    public void setTypeTransfer(TypeTransfer typeTransfer) {
         this.typeTransfer = typeTransfer;
     }
 
-    public String getTransferStatus() {
+    public StatusTransfer getTransferStatus() {
         return transferStatus;
     }
 
-    public void setTransferStatus(String transferStatus) {
+    public void setTransferStatus(StatusTransfer transferStatus) {
         this.transferStatus = transferStatus;
     }
 
