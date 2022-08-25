@@ -1,9 +1,13 @@
 package com.techelevator.tenmo;
 
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
+import com.techelevator.tenmo.services.TransferService;
 
 import java.math.BigDecimal;
 
@@ -13,8 +17,11 @@ public class   App {
 
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
-
+    private  AccountService accountService;
     private AuthenticatedUser currentUser;
+    private Account account;
+    private TransferService transferService;
+
 
     public static void main(String[] args) {
         App app = new App();
@@ -25,6 +32,9 @@ public class   App {
         consoleService.printGreeting();
         loginMenu();
         if (currentUser != null) {
+            accountService = new AccountService(API_BASE_URL, currentUser.getToken());
+            account = accountService.getAccountMatchingUsername(currentUser.getUser().getId());
+            transferService = new TransferService(API_BASE_URL, currentUser.getToken());
             mainMenu();
         }
     }
@@ -87,14 +97,25 @@ public class   App {
     }
 
 	private void viewCurrentBalance() {
-         // TODO Auto-generated method stub
-
-
+        System.out.println("Your current account balance is : $" + account.getBalance());
 
 	}
 
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
+        Transfer[] transfers = transferService.getAllTransfers(account);
+
+        System.out.printf("-------------------------------------------%n");
+        System.out.printf("Transfers%n");
+        System.out.printf("%-10s %-10s %10s%n","ID","From/To", "Amount");
+        System.out.printf("-------------------------------------------%n");
+        for( Transfer transfer : transfers){
+            String amount ="$" + transfer.getAmountForTransfer();
+            if(transfer.getFromAccount().getAccount_id()== account.getAccount_id() && transfer.getTransferStatus().getTransferStatusId()==1){
+
+            System.out.printf("%-10s %-10s %-10s%n",String.valueOf(transfer.getTransferId()),"to " + transfer.getToAccount().getUser().getUsername(), amount);}
+            else {System.out.printf("%-10s %-10s %-10s%n",String.valueOf(transfer.getTransferId()),"from " + transfer.getFromAccount().getUser().getUsername(), amount);}
+        }
+        System.out.printf("-------------------------------------------%n");
 		
 	}
 
