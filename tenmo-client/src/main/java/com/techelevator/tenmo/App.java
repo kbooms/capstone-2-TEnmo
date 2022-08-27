@@ -1,15 +1,13 @@
 package com.techelevator.tenmo;
 
-import com.techelevator.tenmo.model.Account;
-import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
 import com.techelevator.tenmo.services.TransferService;
 
 import java.math.BigDecimal;
+import java.util.Scanner;
 
 public class   App {
 
@@ -109,21 +107,109 @@ public class   App {
         System.out.printf("%-10s %-10s %10s%n","ID","From/To", "Amount");
         System.out.printf("-------------------------------------------%n");
         for( Transfer transfer : transfers){
-            String amount ="$" + transfer.getAmountForTransfer();
-            if(transfer.getFromAccount().getAccount_id()== account.getAccount_id() && transfer.getTransferStatus().getTransferStatusId()==1){
 
-            System.out.printf("%-10s %-10s %-10s%n",String.valueOf(transfer.getTransferId()),"to " + transfer.getToAccount().getUser().getUsername(), amount);}
-            else {System.out.printf("%-10s %-10s %-10s%n",String.valueOf(transfer.getTransferId()),"from " + transfer.getFromAccount().getUser().getUsername(), amount);}
+            String amount ="$" + transfer.getAmountForTransfer();
+            if(transfer.getFromAccount().getAccount_id()== account.getAccount_id() && transfer.getTransferStatus().getTransferStatusId()==StatusTransfer.STATUS_APPROVE ) {
+                System.out.printf("%-10s %-10s %-10s%n",String.valueOf(transfer.getTransferId()),"from " + transfer.getFromAccount().getUser().getUsername(), amount);
+
+            }
+            else if(transfer.getToAccount().getAccount_id()== account.getAccount_id() && transfer.getTransferStatus().getTransferStatusId()==StatusTransfer.STATUS_APPROVE ){
+                System.out.printf("%-10s %-10s %-10s%n",String.valueOf(transfer.getTransferId()),"to " + transfer.getToAccount().getUser().getUsername(), amount);
+            }
+
+
         }
         System.out.printf("-------------------------------------------%n");
-		
+        System.out.println("Please enter transfer ID to view details (0 to cancel): ");
+        Scanner scanner = new Scanner(System.in);
+        int transferId = scanner.nextInt();
+        if (transferId == 0){
+            consoleService.printMainMenu();
+        }
+        else {
+            for( Transfer transfer : transfers){
+                if(transfer.getTransferId()==transferId){
+                    viewTransferDetails(transfer);
+                }
+                else{
+                    System.out.println("Wrong ID");
+                }
+            }
+
+
+        }
 	}
+    private void viewTransferDetails(Transfer transfer){
+        System.out.println("-------------------------------------------");
+        System.out.println("Transfer Details");
+        System.out.println("-------------------------------------------");
+        System.out.println("ID: " + transfer.getTransferId());
+        System.out.println("From: " + transfer.getFromAccount().getUser().getUsername());
+        System.out.println("To: " + transfer.getToAccount().getUser().getUsername());
+        System.out.println("Type:" + transfer.getTypeTransfer().getTransferTypeDesc());
+        System.out.println("Status: " + transfer.getTransferStatus().getTransferStatusDesc());
+        System.out.println("Amount: " + transfer.getAmountForTransfer());
+
+    }
 
 	private void viewPendingRequests() {
-		// TODO Auto-generated method stub
-		
-	}
+        Transfer[] transfers = transferService.getAllTransfers(account);
 
+        System.out.printf("-------------------------------------------%n");
+        System.out.printf("Transfers%n");
+        System.out.printf("%-10s %-10s %10s%n","ID","From" , "Amount");
+        System.out.printf("-------------------------------------------%n");
+        for( Transfer transfer : transfers){
+
+            String amount ="$" + transfer.getAmountForTransfer();
+            if(transfer.getToAccount().getAccount_id()== account.getAccount_id() && transfer.getTransferStatus().getTransferStatusId()==StatusTransfer.STATUS_PENDING && transfer.getTypeTransfer().getTransferTypeId()== TypeTransfer.ID_REQUEST) {
+                System.out.printf("%-10s %-10s %-10s%n",String.valueOf(transfer.getTransferId()),"from " + transfer.getFromAccount().getUser().getUsername(), amount);
+
+            }
+
+
+
+        }
+        System.out.printf("-------------------------------------------%n");
+        System.out.println("Please enter transfer ID to approve/reject (0 to cancel):");
+        Scanner scanner = new Scanner(System.in);
+        int transferId = scanner.nextInt();
+        if(transferId == 0){
+            consoleService.printMainMenu();
+        }
+        else{
+                consoleService.approveRejectRequest();
+                int approvalStatus = scanner.nextInt();
+            Transfer transfer =  searchTransferById(transferId,transfers);
+                if(approvalStatus == 1){
+
+                   transfer.getTransferStatus().setTransferStatusId(StatusTransfer.STATUS_APPROVE);
+                   transfer.getTransferStatus().setTransferStatusDesc(StatusTransfer.DESC_APPROVE);
+                   transferService.updateStatus(transfer);
+                }
+                else if(approvalStatus == 2){
+                    transfer.getTransferStatus().setTransferStatusId(StatusTransfer.STATUS_REJECT);
+                    transfer.getTransferStatus().setTransferStatusDesc(StatusTransfer.DESC_REJECT);
+                    transferService.updateStatus(transfer);
+                }
+                else if(approvalStatus == 0){
+
+                }
+                else{
+                    System.out.println("Wrong number");
+                   viewPendingRequests();
+                }
+        }
+	}
+    private Transfer searchTransferById(int transferId, Transfer[] transferList){
+        Transfer result = null;
+        for(Transfer transfer: transferList){
+            if(transfer.getTransferId()==transferId){
+                result = transfer;
+            }
+        }
+        return result;
+    }
 	private void sendBucks() {
 		// TODO Auto-generated method stub
 		

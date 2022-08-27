@@ -45,6 +45,13 @@ public class ConsoleService {
         System.out.println("0: Exit");
         System.out.println();
     }
+    public void approveRejectRequest(){
+        System.out.println("1: Approve");
+        System.out.println("2: Reject");
+        System.out.println("0: Don't approve or reject");
+        System.out.println("---------");
+        System.out.println("Please choose an option: ");
+    }
 
     public UserCredentials promptForCredentials() {
         String username = promptForString("Username: ");
