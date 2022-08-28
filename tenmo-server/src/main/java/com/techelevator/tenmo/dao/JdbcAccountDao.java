@@ -36,6 +36,7 @@ public class JdbcAccountDao implements AccountDao {
     }
 
 
+
     @Override
     public boolean updateAccount(Account account) {
         String sql = "UPDATE account SET balance = ? WHERE account_id = ?";
@@ -69,6 +70,20 @@ public class JdbcAccountDao implements AccountDao {
         return account ;
 
 
+    }
+    @Override
+    public Account getAccountByAccountId(long accountId){
+        String sql = "Select account.user_id, username, balance , account_id" +
+                "  from account join tenmo_user on tenmo_user.user_id = account.user_id  " +
+                " where account.account_id = ? ";
+        Account account = new Account();
+        SqlRowSet set = jdbcTemplate.queryForRowSet(sql,accountId) ;
+
+        if (set.next()) {
+            account = mapRowToAccount(set) ;
+        }
+
+        return account ;
     }
 
     private Account mapRowToAccount(SqlRowSet rs) {

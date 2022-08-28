@@ -11,6 +11,9 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TransferService {
     public  String api_base_url ;
     private RestTemplate restTemplate = new RestTemplate();
@@ -35,9 +38,10 @@ public class TransferService {
 
 
     public Transfer[] getAllTransfers(Account account){
-        Transfer [] transfers = null;
+        Transfer[] transfers = new Transfer[0];
         try {
-            return  restTemplate.exchange(api_base_url, HttpMethod.GET, getAccountEntity(account),Transfer[].class).getBody();
+            transfers= restTemplate.exchange(api_base_url, HttpMethod.GET, getAccountEntity(account),Transfer[].class).getBody();
+            return transfers;
 
         } catch (RestClientResponseException e) {
             BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());

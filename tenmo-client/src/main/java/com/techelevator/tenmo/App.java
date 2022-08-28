@@ -111,6 +111,10 @@ public class   App {
         System.out.printf("Transfers%n");
         System.out.printf("%-10s %-10s %10s%n","ID","From/To", "Amount");
         System.out.printf("-------------------------------------------%n");
+        if (transfers == null){
+            System.out.println("You don't have any transfers yet.");
+        }
+        else{
         for( Transfer transfer : transfers){
 
             String amount ="$" + transfer.getAmountForTransfer();
@@ -132,16 +136,15 @@ public class   App {
             consoleService.printMainMenu();
         }
         else {
-            for( Transfer transfer : transfers){
-                if(transfer.getTransferId()==transferId){
+            for (Transfer transfer : transfers) {
+                if (transfer.getTransferId() == transferId) {
                     viewTransferDetails(transfer);
-                }
-                else{
+                } else {
                     System.out.println("Wrong ID");
                 }
             }
 
-
+        }
         }
 	}
     private void viewTransferDetails(Transfer transfer){
@@ -159,7 +162,10 @@ public class   App {
 
 	private void viewPendingRequests() {
         Transfer[] transfers = transferService.getAllTransfers(account);
-
+        if( transfers == null){
+            System.out.println("There aren't any pending requests");
+        }
+        else{
         System.out.printf("-------------------------------------------%n");
         System.out.printf("Transfers%n");
         System.out.printf("%-10s %-10s %10s%n","ID","From" , "Amount");
@@ -203,7 +209,7 @@ public class   App {
                 else{
                     System.out.println("Wrong number");
                    viewPendingRequests();
-                }
+                }}
         }
 	}
     private Transfer searchTransferById(int transferId, Transfer[] transferList){
@@ -216,45 +222,79 @@ public class   App {
         return result;
     }
 	private void sendBucks() {
-		User[] users = userService.getAllUsers(currentUser);
+        Account [] accounts = accountService.getAllAccounts();
+		//User[] users = userService.getAllUsers(currentUser);
         Transfer transfer = new Transfer();
-        Account toAccount = new Account();
-        Account fromAccount = new Account();
 
         System.out.printf("-------------------------------------------%n");
         System.out.printf("Users%n");
         System.out.printf("%-10s %-10s%n","ID","Name");
         System.out.printf("-------------------------------------------%n");
-        for (User user: users) {
-            System.out.printf("%-10s %-10s%n", accountService.getAccountMatchingUsername(user.getId()), user.getUsername());
+        for (Account account: accounts) {
+            if(!account.getUser().getId().equals( this.account.getUser().getId()))
+            System.out.printf("%-10s %-10s%n", account.getUser().getId(),account.getUser().getUsername());
         }
         System.out.printf("--------------------%n");
         int userIdChoice = consoleService.promptForInt("Enter ID of user you are sending to (0 to cancel): ");
-        if (validateUserChoice(userIdChoice, users, currentUser)) {
-            String amountChoice = consoleService.promptForString("Enter amount: ");
-//            transferService.sendMoney(transfer.setTypeTransfer(DESC_SEND);)
-//            trying to implement the sendBucks() method, but having trouble putting transfer together
-//            do we have/need a method that creates an actual "Transfer" ??
+        if (validateAccountChoice(userIdChoice, accounts)) {
+            BigDecimal amountChoice = consoleService.promptForBigDecimal("Enter amount: ");
+            transfer =  transferSetting(transfer,userIdChoice,amountChoice,StatusTransfer.STATUS_APPROVE,TypeTransfer.ID_SEND);
+            if (amountChoice.doubleValue() != 0 && amountChoice.doubleValue() <= account.getBalance().doubleValue())
+            transferService.sendMoney(transfer);
+            else
+                System.out.println("You can't send this amount of money.");
+
         }
 	}
+    private Transfer transferSetting(Transfer transfer,long userIdChoice, BigDecimal amountChoice, int status, int type){
+
+        transfer.setFromAccount(account);
+        transfer.setToAccount(accountService.getAccountMatchingUsername(userIdChoice));
+        transfer.setAmountForTransfer(amountChoice);
+        TypeTransfer typeTransfer = new TypeTransfer();
+        typeTransfer.setTransferTypeDesc("");
+        typeTransfer.setTransferTypeId(type);
+        transfer.setTypeTransfer(typeTransfer);
+
+        StatusTransfer statusTransfer = new StatusTransfer();
+        statusTransfer.setTransferStatusDesc("");
+        statusTransfer.setTransferStatusId(status);
+        transfer.setTransferStatus(statusTransfer);
+        return transfer;
+    }
 
 	private void requestBucks() {
-		// TODO Auto-generated method stub
+        Account [] accounts = accountService.getAllAccounts();
+        User[] users = userService.getAllUsers(currentUser);
+        Transfer transfer = new Transfer();
+
+        System.out.printf("-------------------------------------------%n");
+        System.out.printf("Users%n");
+        System.out.printf("%-10s %-10s%n","ID","Name");
+        System.out.printf("-------------------------------------------%n");
+        for (Account account: accounts) {
+            if(account.getUser().getId()!= currentUser.getUser().getId())
+                System.out.printf("%-10s %-10s%n", account.getUser().getId(),account.getUser().getUsername());
+        }
+        System.out.printf("--------------------%n");
+        long userIdChoice = consoleService.promptForInt("Enter ID of user you are requesting from (0 to cancel): ");
+        if (validateAccountChoice(userIdChoice, accounts)) {
+            BigDecimal amountChoice = consoleService.promptForBigDecimal("Enter amount: ");
+          transfer =  transferSetting(transfer,userIdChoice,amountChoice,StatusTransfer.STATUS_PENDING,TypeTransfer.ID_REQUEST);
+            transferService.requestMoney(transfer);
 		
-	}
+	}}
 
 
     // Validate Users Choice after user ID is entered
-    private boolean validateUserChoice(int userIdChoice, User[] users, AuthenticatedUser authenticatedUser) {
+    private boolean validateAccountChoice(long userIdChoice, Account[] accounts) {
         if (userIdChoice != 0) {
             try {
                 boolean validUserIdChoice = false;
 
-                for (User user: users) {
-                    if (userIdChoice == currentUser.getUser().getId()) {
-                        throw new InvalidUserChoiceException(); // this exception was added to the "exceptions" package in the client
-                    }
-                    if (user.getId() == userIdChoice) {
+                for (Account account: accounts) {
+
+                    if (account.getUser().getId() == userIdChoice && currentUser.getUser().getId() != userIdChoice ) {
                         validUserIdChoice = true;
                         break;
                     }
@@ -262,8 +302,8 @@ public class   App {
                 if (!validUserIdChoice) {
                     throw new UserNotFoundException(); // this exception was added to the "exceptions" package in the client
                 }
-                return true;
-            } catch (UserNotFoundException | InvalidUserChoiceException e) {
+                return validUserIdChoice;
+            } catch (UserNotFoundException e) {
                 System.out.println(e.getMessage());
             }
         }

@@ -13,6 +13,10 @@ public class TypeTransfer {
         this.transferTypeId = transferTypeId;
     }
 
+    public void setTransferTypeDesc(String transferTypeDesc) {
+        this.transferTypeDesc = transferTypeDesc;
+    }
+
     public String getTransferTypeDesc() {
         return transferTypeDesc;
     }

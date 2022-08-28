@@ -2,6 +2,7 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.TypeTransfer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -41,11 +42,12 @@ public class JdbcTransferDao implements TransferDao{
     @Override
      public List<Transfer> getTransfersList(Account account){
          List<Transfer> transfers = new ArrayList<>();
-         String sql = "Select * from transfer where account_from = ? or account_to = ?";
-         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql,account.getAccount_id(), account.getAccount_id() );
+         String sql = "Select * from transfer where account_from = ? ";
+         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql,account.getAccount_id() );
          while (rowSet.next()){
-             Transfer transfer = mapRowToTransfer(rowSet);
+            Transfer transfer = mapRowToTransfer(rowSet);
              transfers.add(transfer);
+             System.out.println(account.getAccount_id());
          }
 
          return transfers;
@@ -61,8 +63,8 @@ public class JdbcTransferDao implements TransferDao{
     private Transfer mapRowToTransfer(SqlRowSet rs) {
         Transfer transfer = new Transfer();
         transfer.setTransferId(rs.getInt("transfer_id"));
-        transfer.setFromAccount(accountDao.getAccountWithOutBalance(rs.getInt("account_from")));
-        transfer.setToAccount(accountDao.getAccountWithOutBalance(rs.getInt("account_to")));
+        transfer.setFromAccount(accountDao.getAccountByAccountId(rs.getInt("account_from")));
+        transfer.setToAccount(accountDao.getAccountByAccountId(rs.getInt("account_to")));
 
         transfer.setTransferStatus(statusDao.getStatus(rs.getInt("transfer_status_id")));
         transfer.setTypeTransfer(typeDao.getType(rs.getInt("transfer_type_id")));

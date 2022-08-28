@@ -17,4 +17,7 @@ public class StatusTransfer {
         return transferStatusDesc;
     }
 
+    public void setTransferStatusDesc(String transferStatusDesc) {
+        this.transferStatusDesc = transferStatusDesc;
+    }
 }

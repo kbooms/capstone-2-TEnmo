@@ -20,4 +20,7 @@ public class TypeTransfer {
         return transferTypeDesc;
     }
 
+    public void setTransferTypeDesc(String transferTypeDesc) {
+        this.transferTypeDesc = transferTypeDesc;
+    }
 }
