@@ -1,13 +1,14 @@
 package com.techelevator.tenmo;
 
+import com.techelevator.tenmo.exceptions.InvalidUserChoiceException;
+import com.techelevator.tenmo.exceptions.UserNotFoundException;
 import com.techelevator.tenmo.model.*;
-import com.techelevator.tenmo.services.AccountService;
-import com.techelevator.tenmo.services.AuthenticationService;
-import com.techelevator.tenmo.services.ConsoleService;
-import com.techelevator.tenmo.services.TransferService;
+import com.techelevator.tenmo.services.*;
 
 import java.math.BigDecimal;
 import java.util.Scanner;
+
+import static com.techelevator.tenmo.model.TypeTransfer.DESC_SEND;
 
 public class   App {
 
@@ -16,11 +17,15 @@ public class   App {
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
     private  AccountService accountService;
+    private UserService userService;
     private AuthenticatedUser currentUser;
     private Account account;
     private TransferService transferService;
 
 
+    public App() {
+        this.userService = new UserService();
+    }
     public static void main(String[] args) {
         App app = new App();
         app.run();
@@ -211,8 +216,26 @@ public class   App {
         return result;
     }
 	private void sendBucks() {
-		// TODO Auto-generated method stub
-		
+		User[] users = userService.getAllUsers(currentUser);
+        Transfer transfer = new Transfer();
+        Account toAccount = new Account();
+        Account fromAccount = new Account();
+
+        System.out.printf("-------------------------------------------%n");
+        System.out.printf("Users%n");
+        System.out.printf("%-10s %-10s%n","ID","Name");
+        System.out.printf("-------------------------------------------%n");
+        for (User user: users) {
+            System.out.printf("%-10s %-10s%n", accountService.getAccountMatchingUsername(user.getId()), user.getUsername());
+        }
+        System.out.printf("--------------------%n");
+        int userIdChoice = consoleService.promptForInt("Enter ID of user you are sending to (0 to cancel): ");
+        if (validateUserChoice(userIdChoice, users, currentUser)) {
+            String amountChoice = consoleService.promptForString("Enter amount: ");
+//            transferService.sendMoney(transfer.setTypeTransfer(DESC_SEND);)
+//            trying to implement the sendBucks() method, but having trouble putting transfer together
+//            do we have/need a method that creates an actual "Transfer" ??
+        }
 	}
 
 	private void requestBucks() {
@@ -220,4 +243,30 @@ public class   App {
 		
 	}
 
+
+    // Validate Users Choice after user ID is entered
+    private boolean validateUserChoice(int userIdChoice, User[] users, AuthenticatedUser authenticatedUser) {
+        if (userIdChoice != 0) {
+            try {
+                boolean validUserIdChoice = false;
+
+                for (User user: users) {
+                    if (userIdChoice == currentUser.getUser().getId()) {
+                        throw new InvalidUserChoiceException(); // this exception was added to the "exceptions" package in the client
+                    }
+                    if (user.getId() == userIdChoice) {
+                        validUserIdChoice = true;
+                        break;
+                    }
+                }
+                if (!validUserIdChoice) {
+                    throw new UserNotFoundException(); // this exception was added to the "exceptions" package in the client
+                }
+                return true;
+            } catch (UserNotFoundException | InvalidUserChoiceException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        return false;
+    }
 }
