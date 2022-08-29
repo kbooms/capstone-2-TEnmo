@@ -14,6 +14,9 @@ public class Transfer {
     private StatusTransfer transferStatus;
     private BigDecimal amountForTransfer;
 
+
+
+
     public int getTransferId() {
         return transferId;
     }

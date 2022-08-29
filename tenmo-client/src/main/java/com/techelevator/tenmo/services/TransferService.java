@@ -3,10 +3,7 @@ package com.techelevator.tenmo.services;
 import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.util.BasicLogger;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -20,14 +17,14 @@ public class TransferService {
     private String token;
 
     public TransferService(String api_base_url, String token) {
-        this.api_base_url = api_base_url;
+        this.api_base_url = api_base_url + "transfers";
         this.token = token;
     }
     private HttpEntity<Account> getAccountEntity(Account account) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(token);
-        return new HttpEntity<>( account, headers);
+        return new HttpEntity<>(account, headers);
     }
     private HttpEntity<Transfer> getTransferEntity(Transfer transfer) {
         HttpHeaders headers = new HttpHeaders();
@@ -51,42 +48,74 @@ public class TransferService {
         return transfers;
     }
 
-    public boolean updateStatus(Transfer transfer){
-        boolean isUpdated = false;
+    public Transfer[] getSentTransfers(Account account){
+        Transfer[] transfers = null;
         try {
-            isUpdated =  restTemplate.exchange(api_base_url, HttpMethod.PUT,getTransferEntity(transfer),boolean.class).getBody();
+            transfers= restTemplate.exchange(api_base_url +"/listSent", HttpMethod.POST, getAccountEntity(account),Transfer[].class).getBody();
 
         } catch (RestClientResponseException e) {
             BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
         } catch (ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
         }
-        return isUpdated;
+        return transfers;
     }
 
-    public boolean sendMoney(Transfer transfer){
-        boolean isSent = false;
+    public Transfer[] getRequestTransfers(Account account){
+        Transfer[] transfers = new Transfer[0];
         try {
-            isSent =  restTemplate.exchange(api_base_url + "/send", HttpMethod.POST,getTransferEntity(transfer),boolean.class).getBody();
+            transfers= restTemplate.exchange(api_base_url + "/listRequest", HttpMethod.POST, getAccountEntity(account),Transfer[].class).getBody();
+            return transfers;
 
         } catch (RestClientResponseException e) {
             BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
         } catch (ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
         }
-        return isSent;
+        return transfers;
     }
-    public boolean requestMoney(Transfer transfer){
-        boolean isRequested = false;
+
+
+
+
+    public void updateStatus(Transfer transfer){
+        int statusCode =0;
         try {
-            isRequested =  restTemplate.exchange(api_base_url + "/request", HttpMethod.POST,getTransferEntity(transfer),boolean.class).getBody();
+            statusCode = restTemplate.exchange(api_base_url, HttpMethod.PUT,getTransferEntity(transfer),boolean.class).getStatusCodeValue();
 
         } catch (RestClientResponseException e) {
             BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
         } catch (ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
         }
-        return isRequested;
+        if (statusCode ==HttpStatus.NO_CONTENT.value())
+            System.out.println("request "+ transfer.getTransferId()
+                + " "+ transfer.getTransferStatus().getTransferStatusDesc());
+    }
+
+    public void sendMoney(Transfer transfer){
+        int statusCode =0;
+        try {
+              statusCode= restTemplate.exchange(api_base_url + "/send", HttpMethod.POST,getTransferEntity(transfer),boolean.class).getStatusCodeValue();
+
+        } catch (RestClientResponseException e) {
+            BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
+        } catch (ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+        if (statusCode ==HttpStatus.CREATED.value()) System.out.println("Money sent to " + transfer.getToAccount().getUser().getUsername());
+    }
+    public void requestMoney(Transfer transfer){
+        int statusCode =0;
+        try {
+            statusCode=  restTemplate.exchange(api_base_url + "/request", HttpMethod.POST,getTransferEntity(transfer),boolean.class).getStatusCodeValue();
+
+        } catch (RestClientResponseException e) {
+            BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
+        } catch (ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+        if (statusCode ==HttpStatus.CREATED.value()) System.out.println("Money Request to "+transfer.getToAccount().getUser().getUsername()+" created Successfully");
     }
 
 }

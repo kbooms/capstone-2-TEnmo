@@ -30,7 +30,7 @@ public class JdbcTransferDao implements TransferDao{
     @Override
     public boolean Create(Transfer transfer) {
         String sql = "INSERT into TRANSFER(transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "values(?, ?, ?, ?)";
+                "values(?, ?, ?, ?,?)";
         return jdbcTemplate.update(sql,
                 transfer.getTypeTransfer().getTransferTypeId(),
                 transfer.getTransferStatus().getTransferStatusId(),
@@ -58,6 +58,35 @@ public class JdbcTransferDao implements TransferDao{
         String sql = "Update transfer set transfer_status_id = ? where transfer_id = ?";
         return jdbcTemplate.update(sql, transfer.getTransferStatus().getTransferStatusId(),
                 transfer.getTransferId()) == 1;
+    }
+
+    @Override
+    public List<Transfer> approvedTransferList(Account account) {
+        List<Transfer> transfers = new ArrayList<>();
+        String sql = "Select * from transfer where (account_from = ? or account_to = ?) and transfer_status_id > 1";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql,account.getAccount_id(),account.getAccount_id() );
+        while (rowSet.next()){
+            Transfer transfer = mapRowToTransfer(rowSet);
+            transfers.add(transfer);
+            System.out.println(account.getAccount_id());
+        }
+
+        return transfers;
+    }
+
+    @Override
+    public List<Transfer> pendingTransferList(Account account) {
+        List<Transfer> transfers = new ArrayList<>();
+        String sql = "Select * from transfer where account_to = ?  " +
+                "and transfer_status_id = 1 and transfer_type_id = 1 ";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql,account.getAccount_id() );
+        while (rowSet.next()){
+            Transfer transfer = mapRowToTransfer(rowSet);
+            transfers.add(transfer);
+            System.out.println(account.getAccount_id());
+        }
+
+        return transfers;
     }
 
     private Transfer mapRowToTransfer(SqlRowSet rs) {

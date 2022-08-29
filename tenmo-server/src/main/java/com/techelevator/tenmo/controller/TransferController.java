@@ -28,6 +28,20 @@ public class TransferController {
     public List<Transfer> list(@RequestBody Account account){
     return  transferDao.getTransfersList(account);
     }
+
+
+    @PostMapping("/listSent")
+    public List<Transfer> getListSentTransfers(@RequestBody Account account){
+        return  transferDao.approvedTransferList(account);
+    }
+
+    @PostMapping("/listRequest")
+    public List<Transfer> getListPendingTransfers(@RequestBody Account account){
+        return  transferDao.pendingTransferList(account);
+    }
+
+
+
     @PostMapping(value = "/send")
     @ResponseStatus(HttpStatus.CREATED)
     public void SendBucks(@RequestBody Transfer transfer){
