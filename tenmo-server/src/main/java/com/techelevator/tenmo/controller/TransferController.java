@@ -32,7 +32,7 @@ public class TransferController {
 
     @PostMapping("/listSent")
     public List<Transfer> getListSentTransfers(@RequestBody Account account){
-        return  transferDao.approvedTransferList(account);
+        return  transferDao.approvedRejectedTransferList(account);
     }
 
     @PostMapping("/listRequest")
