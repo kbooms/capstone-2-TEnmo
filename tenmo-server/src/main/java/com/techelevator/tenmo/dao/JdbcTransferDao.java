@@ -61,7 +61,7 @@ public class JdbcTransferDao implements TransferDao{
     }
 
     @Override
-    public List<Transfer> approvedTransferList(Account account) {
+    public List<Transfer> approvedRejectedTransferList(Account account) {
         List<Transfer> transfers = new ArrayList<>();
         String sql = "Select * from transfer where (account_from = ? or account_to = ?) and transfer_status_id > 1";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql,account.getAccount_id(),account.getAccount_id() );

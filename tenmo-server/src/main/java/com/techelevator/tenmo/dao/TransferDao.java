@@ -10,7 +10,7 @@ public interface TransferDao {
     public boolean Create(Transfer transfer);
     public List<Transfer> getTransfersList(Account account);
     public boolean updateStatus(Transfer transfer);
-    public List<Transfer> approvedTransferList(Account account);
+    public List<Transfer> approvedRejectedTransferList(Account account);
     public List<Transfer> pendingTransferList(Account account);
 
 
