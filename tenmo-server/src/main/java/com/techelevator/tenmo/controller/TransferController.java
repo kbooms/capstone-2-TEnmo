@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/transfers")
-//@PreAuthorize("isAuthenticated()")
+@PreAuthorize("isAuthenticated()")
 public class TransferController {
 
  TransferDao transferDao;

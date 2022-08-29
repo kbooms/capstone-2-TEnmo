@@ -12,23 +12,24 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RequestMapping("/accounts")
-//@PreAuthorize("isAuthenticated()")
+@PreAuthorize("isAuthenticated()")
 @RestController
 public class AccountController {
-  AccountDao  accountDao ;
+   AccountDao  accountDao ;
 
 
     public AccountController(AccountDao accountDao) {
+
         this.accountDao = accountDao;
     }
 
     @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-     private Account getAccount(@PathVariable int userId){
-     return accountDao.getAccount(userId);
+     public Account getAccountByUserId(@PathVariable int userId){
+     return this.accountDao.getAccount(userId);
     }
 
     @GetMapping
-    private List<Account> getListAccount(){
+    public List<Account> getListAccount(){
         return accountDao.getListAccount();
     }
 
